@@ -17,9 +17,10 @@ def extract_page(file):
         return ''
     lines = soup.find_all(name='span', class_='ocr_line')
     for l in lines:
-        # Remove \xad at the end of the line.
+        temp = l.get_text()
         l_txt = l.get_text().strip().replace('\xad', '')
-        line_break = ' ' if 'hardbreak' in l['title'] else ''
+        # \xad refers to the word that is cut into two parts
+        line_break = '' if '\xad' in temp else ' '
         page_txt += l_txt + line_break
     return page_txt
 
@@ -39,14 +40,15 @@ def extract_text(dir):
 def main(root):
     print('start...')
     start = time.time()
+    text_dir = 'texts/'
     for f in os.listdir(root_dir):
         sub_dir = os.path.join(root_dir, f)
         if os.path.isdir(sub_dir):
             print('processing:', sub_dir)
             text = extract_text(sub_dir)
-            filename = sub_dir + '.txt'
+            filename = f + '.txt'
             print('saving...')
-            with open(filename, 'w') as f:
+            with open(text_dir + filename, 'w') as f:
                 f.write(text)
     print('Time elapsed: %.2f' % (time.time() - start))
         
@@ -55,5 +57,5 @@ def test():
     txt = extract_page(test_file)
     print(txt)
 
-# main(root_dir)
-test()
+main(root_dir)
+# test()
